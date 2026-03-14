@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>¿Dónde Comer?</title>
+
+<style>
+
+body{
+font-family: 'Segoe UI', sans-serif;
+margin:0;
+background:#f2f2f2;
+}
+
+header{
+background:linear-gradient(90deg,#ff6b00,#ff9500);
+color:white;
+padding:25px;
+text-align:center;
+}
+
+header h1{
+margin:0;
+}
+
+.search{
+text-align:center;
+padding:15px;
+}
+
+.search input{
+width:80%;
+max-width:400px;
+padding:12px;
+border-radius:25px;
+border:none;
+box-shadow:0 2px 5px rgba(0,0,0,0.2);
+}
+
+nav{
+text-align:center;
+padding:10px;
+}
+
+nav button{
+background:#ff6b00;
+border:none;
+color:white;
+padding:10px 18px;
+margin:5px;
+border-radius:20px;
+cursor:pointer;
+font-size:14px;
+}
+
+nav button:hover{
+background:#ff8c1a;
+}
+
+.container{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+gap:20px;
+padding:20px;
+}
+
+.card{
+background:white;
+border-radius:12px;
+overflow:hidden;
+box-shadow:0 4px 10px rgba(0,0,0,0.15);
+transition:0.2s;
+}
+
+.card:hover{
+transform:scale(1.03);
+}
+
+.card img{
+width:100%;
+height:170px;
+object-fit:cover;
+}
+
+.info{
+padding:15px;
+}
+
+.info h3{
+margin:0 0 8px 0;
+}
+
+.tipo{
+color:#666;
+font-size:14px;
+}
+
+.horario{
+font-size:14px;
+margin:5px 0;
+}
+
+.estado{
+font-weight:bold;
+font-size:14px;
+}
+
+.abierto{
+color:green;
+}
+
+.cerrado{
+color:red;
+}
+
+.botones{
+margin-top:10px;
+display:flex;
+gap:10px;
+}
+
+.boton{
+flex:1;
+text-align:center;
+padding:8px;
+border-radius:8px;
+text-decoration:none;
+color:white;
+font-size:14px;
+}
+
+.mapa{
+background:#0077ff;
+}
+
+.llamar{
+background:#28a745;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>🍔 ¿Dónde Comer?</h1>
+<p>Encuentra comida abierta cerca de ti</p>
+</header>
+
+<div class="search">
+<input type="text" id="buscador" placeholder="Buscar comida o lugar..." onkeyup="buscar()">
+</div>
+
+<nav>
+<button onclick="filtrar('mañana')">Mañana</button>
+<button onclick="filtrar('tarde')">Tarde</button>
+<button onclick="filtrar('noche')">Noche</button>
+<button onclick="filtrar('todos')">Todos</button>
+</nav>
+
+<div class="container" id="lista"></div>
+
+<script>
+
+let locales = [
+
+{
+nombre:"Taquería El Güero",
+tipo:"Tacos",
+abre:18,
+cierra:2,
+momento:"noche",
+imagen:"https://via.placeholder.com/400x300",
+ubicacion:"https://maps.google.com",
+telefono:"+524351111111"
+},
+
+{
+nombre:"Desayunos Lupita",
+tipo:"Desayunos",
+abre:7,
+cierra:12,
+momento:"mañana",
+imagen:"https://via.placeholder.com/400x300",
+ubicacion:"https://maps.google.com",
+telefono:"+524352222222"
+},
+
+{
+nombre:"Hamburguesas El Toro",
+tipo:"Hamburguesas",
+abre:17,
+cierra:23,
+momento:"noche",
+imagen:"https://via.placeholder.com/400x300",
+ubicacion:"https://maps.google.com",
+telefono:"+524353333333"
+},
+
+{
+nombre:"Fiesta Pizza",
+tipo:"Pizzas",
+abre:10,
+cierra:22,
+momento:["mañana","tarde","noche"],
+imagen:"imagenes/fiestapizza.jpg",
+ubicacion:"https://maps.app.goo.gl/VAKLj8pgMS8Mc2s57",
+telefono:"+524354444444"
+}
+
+];
+
+function estaAbierto(abre,cierra){
+
+let hora = new Date().getHours();
+
+if(abre < cierra){
+return hora >= abre && hora < cierra;
+}else{
+return hora >= abre || hora < cierra;
+}
+
+}
+
+function mostrarLocales(lista){
+
+let contenedor = document.getElementById("lista");
+contenedor.innerHTML="";
+
+lista.forEach(local =>{
+
+let abierto = estaAbierto(local.abre,local.cierra);
+
+let estado = abierto ? 
+`<p class="estado abierto">🟢 Abierto</p>` :
+`<p class="estado cerrado">🔴 Cerrado</p>`;
+
+contenedor.innerHTML += `
+
+<div class="card">
+
+<img src="${local.imagen}">
+
+<div class="info">
+
+<h3>${local.nombre}</h3>
+
+<p class="tipo">🍽 ${local.tipo}</p>
+
+<p class="horario">🕒 ${local.abre}:00 - ${local.cierra}:00</p>
+
+${estado}
+
+<div class="botones">
+
+<a class="boton mapa" href="${local.ubicacion}" target="_blank">📍 Ubicación</a>
+
+<a class="boton llamar" href="tel:${local.telefono}">📞 Llamar</a>
+
+</div>
+
+</div>
+
+</div>
+
+`;
+
+});
+
+}
+
+function filtrar(momento){
+
+if(momento=="todos"){
+mostrarLocales(locales);
+return;
+}
+
+let filtrados = locales.filter(local => {
+
+if(Array.isArray(local.momento)){
+return local.momento.includes(momento);
+}
+
+return local.momento === momento;
+
+});
+
+mostrarLocales(filtrados);
+
+}
+
+function buscar(){
+
+let texto = document.getElementById("buscador").value.toLowerCase();
+
+let resultados = locales.filter(l =>
+l.nombre.toLowerCase().includes(texto) ||
+l.tipo.toLowerCase().includes(texto)
+);
+
+mostrarLocales(resultados);
+
+}
+
+mostrarLocales(locales);
+
+</script>
+
+</body>
+</html>
